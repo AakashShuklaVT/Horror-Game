@@ -2,10 +2,11 @@ import { useKeyboardControls } from '@react-three/drei'
 import { useFrame } from '@react-three/fiber'
 import { CapsuleCollider, RigidBody } from '@react-three/rapier'
 import React, { useRef } from 'react'
-import { Vector3 } from 'three'
+import * as THREE from 'three'
 
 const SPEED = 5;
-const direction = new Vector3()
+const direction = new THREE.Vector3()
+const euler = new THREE.Euler(0, 0, 0, 'YXZ')
 
 const Player = () => {
     const body = useRef(null)
@@ -14,22 +15,33 @@ const Player = () => {
     useFrame((state, delta) => {
         const keys = getKeys()
 
+        // 1. Calculate input vectors (Fixed Z-axis: backward is positive, forward is negative)
         const x = Number(keys.right) - Number(keys.left)
-        const z = Number(keys.forward) - Number(keys.backward)
+        const z = Number(keys.backward) - Number(keys.forward)
 
         direction.set(x, 0, z)
         direction.normalize().multiplyScalar(SPEED)
 
-        const velocity = body.current.linvel()
+        // 2. Rotate the movement direction to match where the camera is looking
+        euler.copy(state.camera.rotation)
+        euler.x = 0 // Don't fly into the sky if looking up
+        euler.z = 0 // Ignore head tilt
+        direction.applyEuler(euler)
 
+        // 3. Apply the velocity to the physics body
+        const velocity = body.current.linvel()
         body.current.setLinvel(
             {
                 x: direction.x,
-                y: velocity.y,
+                y: velocity.y, // Keep gravity
                 z: direction.z,
             },
             true
         )
+
+        // 4. Attach the camera to the player's physical body
+        const playerPosition = body.current.translation()
+        state.camera.position.set(playerPosition.x, playerPosition.y + 0.6, playerPosition.z)
     })
 
     return (

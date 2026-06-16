@@ -1,4 +1,4 @@
-import { Environment, OrbitControls } from '@react-three/drei'
+import { Environment, PointerLockControls } from '@react-three/drei'
 import { Canvas } from '@react-three/fiber'
 import { Physics, RigidBody } from '@react-three/rapier'
 import Player from './Player'
@@ -9,7 +9,7 @@ export default function Experience() {
     return (
         <Canvas>
             <Physics debug>
-                <OrbitControls makeDefault />
+                <PointerLockControls makeDefault />
                 <Lights />
                 <Player />
                 <RigidBody type='fixed' colliders='cuboid'>
