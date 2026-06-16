@@ -1,22 +1,25 @@
 import { Environment, OrbitControls } from '@react-three/drei'
 import { Canvas } from '@react-three/fiber'
+import { Physics, RigidBody } from '@react-three/rapier'
+import Player from './Player'
+import Lights from './Lights'
 
 export default function Experience() {
 
     return (
         <Canvas>
-            <OrbitControls makeDefault />
-
-            {/* Lights */}
-            <ambientLight intensity={1} />
-            <directionalLight position={[5, 5, 5]} intensity={3} castShadow />
-
-            {/* Basic Box to show the scene is working */}
-            <mesh castShadow receiveShadow position={[0, 0, 0]}>
-                <boxGeometry args={[1, 1, 1]} />
-                <meshStandardMaterial />
-            </mesh>
-            <Environment preset='studio' background/>
+            <Physics debug>
+                <OrbitControls makeDefault />
+                <Lights />
+                <Player />
+                <RigidBody type='fixed' colliders='cuboid'>
+                    <mesh position={[0, -0.1, 0]}>
+                        <boxGeometry args={[50, 0.5, 50]} />
+                        <meshStandardMaterial />
+                    </mesh> 
+                </RigidBody>
+                <Environment preset='night' />
+            </Physics>
         </Canvas>
     )
 }
