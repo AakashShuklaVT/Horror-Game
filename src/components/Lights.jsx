@@ -3,7 +3,7 @@ import React from 'react'
 const Lights = () => {
     return (
         <group>
-            <ambientLight intensity={1} />
+            <ambientLight intensity={0} />
             {/* <directionalLight position={[5, 5, 5]} intensity={3} castShadow /> */}
         </group>
     )

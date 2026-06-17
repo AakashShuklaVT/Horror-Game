@@ -1,6 +1,6 @@
 import { Environment, PointerLockControls } from '@react-three/drei'
 import { Canvas } from '@react-three/fiber'
-import { Physics, RigidBody } from '@react-three/rapier'
+import { Physics } from '@react-three/rapier'
 import Player from './Player'
 import Lights from './Lights'
 import House from './House'
