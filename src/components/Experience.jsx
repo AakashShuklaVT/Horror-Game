@@ -3,6 +3,7 @@ import { Canvas } from '@react-three/fiber'
 import { Physics, RigidBody } from '@react-three/rapier'
 import Player from './Player'
 import Lights from './Lights'
+import House from './House'
 
 export default function Experience() {
 
@@ -12,12 +13,7 @@ export default function Experience() {
                 <PointerLockControls makeDefault />
                 <Lights />
                 <Player />
-                <RigidBody type='fixed' colliders='cuboid'>
-                    <mesh position={[0, -0.1, 0]}>
-                        <boxGeometry args={[50, 0.5, 50]} />
-                        <meshStandardMaterial />
-                    </mesh> 
-                </RigidBody>
+                <House />
                 <Environment preset='night' />
             </Physics>
         </Canvas>

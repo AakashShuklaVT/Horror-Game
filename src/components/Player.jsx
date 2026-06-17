@@ -4,7 +4,8 @@ import { CapsuleCollider, RigidBody } from '@react-three/rapier'
 import React, { useRef } from 'react'
 import * as THREE from 'three'
 
-const SPEED = 5;
+const SPEED = 3;
+const JUMP_FORCE = 3;
 const direction = new THREE.Vector3()
 const euler = new THREE.Euler(0, 0, 0, 'YXZ')
 
@@ -13,6 +14,8 @@ const Player = () => {
     const [subscribeKeys, getKeys] = useKeyboardControls()
 
     useFrame((state, delta) => {
+        if (!body.current) return
+        
         const keys = getKeys()
 
         // 1. Calculate input vectors (Fixed Z-axis: backward is positive, forward is negative)
@@ -20,16 +23,23 @@ const Player = () => {
         const z = Number(keys.backward) - Number(keys.forward)
 
         direction.set(x, 0, z)
-        direction.normalize().multiplyScalar(SPEED)
+        if (direction.lengthSq() > 0) {
+            direction.normalize().multiplyScalar(SPEED)
+        }
 
         // 2. Rotate the movement direction to match where the camera is looking
-        euler.copy(state.camera.rotation)
+        euler.setFromQuaternion(state.camera.quaternion, 'YXZ')
         euler.x = 0 // Don't fly into the sky if looking up
         euler.z = 0 // Ignore head tilt
         direction.applyEuler(euler)
 
         // 3. Apply the velocity to the physics body
         const velocity = body.current.linvel()
+
+        // Simple Jump (If vertical velocity is near zero, we assume we are touching the ground)
+        if (keys.jump && Math.abs(velocity.y) < 0.05) {
+            velocity.y = JUMP_FORCE
+        }
         body.current.setLinvel(
             {
                 x: direction.x,
@@ -48,7 +58,7 @@ const Player = () => {
         <RigidBody ref={body}
             colliders={false}
             enabledRotations={[false, false, false]}
-            position={[0, 1, 0]}
+            position={[0, 5, 0]}
         >
             <CapsuleCollider args={[0.5, 0.5]} />
         </RigidBody>
