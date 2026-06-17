@@ -58,7 +58,7 @@ const Player = () => {
         <RigidBody ref={body}
             colliders={false}
             enabledRotations={[false, false, false]}
-            position={[0, 5, 0]}
+            position={[0, 9, 0]}
         >
             <CapsuleCollider args={[0.5, 0.5]} />
         </RigidBody>

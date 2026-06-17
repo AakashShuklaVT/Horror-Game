@@ -9,7 +9,7 @@ export default function Experience() {
 
     return (
         <Canvas>
-            <Physics debug>
+            <Physics>
                 <PointerLockControls makeDefault />
                 <Lights />
                 <Player />
