@@ -3,6 +3,7 @@ import { useFrame } from '@react-three/fiber'
 import { CapsuleCollider, RigidBody } from '@react-three/rapier'
 import React, { useEffect, useRef, useState } from 'react'
 import * as THREE from 'three'
+import { audioManager } from '../utils/AudioManager'
 
 const SPEED = 3;
 const JUMP_FORCE = 3;
@@ -60,6 +61,16 @@ const Player = () => {
             y: velocity.y, // Keep gravity
             z: direction.z,
         }, true)
+
+        // Audio Manager: Footsteps
+        const isMoving = Math.abs(velocity.x) > 0.1 || Math.abs(velocity.z) > 0.1;
+        const isGrounded = Math.abs(velocity.y) < 0.05;
+
+        if (isMoving && isGrounded) {
+            audioManager.play('footsteps');
+        } else {
+            audioManager.pause('footsteps');
+        }
     })
 
     return (
