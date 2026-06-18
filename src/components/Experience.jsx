@@ -14,7 +14,6 @@ export default function Experience() {
                 <Lights />
                 <Player />
                 <House />
-                <Environment preset='night' />
             </Physics>
         </Canvas>
     )

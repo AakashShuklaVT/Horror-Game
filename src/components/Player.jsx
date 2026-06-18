@@ -1,7 +1,7 @@
-import { useKeyboardControls } from '@react-three/drei'
+import { PerspectiveCamera, useKeyboardControls } from '@react-three/drei'
 import { useFrame } from '@react-three/fiber'
 import { CapsuleCollider, RigidBody } from '@react-three/rapier'
-import React, { useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import * as THREE from 'three'
 
 const SPEED = 3;
@@ -12,10 +12,24 @@ const euler = new THREE.Euler(0, 0, 0, 'YXZ')
 const Player = () => {
     const body = useRef(null)
     const [subscribeKeys, getKeys] = useKeyboardControls()
+    const [lightTarget] = useState(() => new THREE.Object3D())
+    const [torchOn, setTorchOn] = useState(false)
 
-    useFrame((state, delta) => {
+    useEffect(() => {
+        const unsubscribe = subscribeKeys(
+            (state) => state.torch,
+            (pressed) => {
+                if (pressed) {
+                    setTorchOn((prev) => !prev)
+                }
+            }
+        )
+        return () => unsubscribe()
+    }, [subscribeKeys])
+
+    useFrame((state) => {
         if (!body.current) return
-        
+
         const keys = getKeys()
 
         // 1. Calculate input vectors (Fixed Z-axis: backward is positive, forward is negative)
@@ -40,18 +54,12 @@ const Player = () => {
         if (keys.jump && Math.abs(velocity.y) < 0.05) {
             velocity.y = JUMP_FORCE
         }
-        body.current.setLinvel(
-            {
-                x: direction.x,
-                y: velocity.y, // Keep gravity
-                z: direction.z,
-            },
-            true
-        )
 
-        // 4. Attach the camera to the player's physical body
-        const playerPosition = body.current.translation()
-        state.camera.position.set(playerPosition.x, playerPosition.y + 0.6, playerPosition.z)
+        body.current.setLinvel({
+            x: direction.x,
+            y: velocity.y, // Keep gravity
+            z: direction.z,
+        }, true)
     })
 
     return (
@@ -61,6 +69,20 @@ const Player = () => {
             position={[0, 9, 0]}
         >
             <CapsuleCollider args={[0.5, 0.5]} />
+            <PerspectiveCamera makeDefault position={[0, 0.6, 0]}>
+                <primitive object={lightTarget} position={[0, 0, -1]} />
+
+                {/* Put your Spotlight here! */}
+                <spotLight
+                    target={lightTarget}
+                    position={[0, 0, 0]}
+                    angle={Math.PI / 9}
+                    penumbra={1}
+                    intensity={torchOn ? 20 : 0}
+                    distance={100}
+                    castShadow
+                />
+            </PerspectiveCamera>
         </RigidBody>
     )
 }
