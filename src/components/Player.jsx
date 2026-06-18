@@ -4,6 +4,7 @@ import { CapsuleCollider, RigidBody } from '@react-three/rapier'
 import React, { useEffect, useRef, useState } from 'react'
 import * as THREE from 'three'
 import { audioManager } from '../utils/AudioManager'
+import HorrorDoll from './HorrorDoll'
 
 const SPEED = 3;
 const JUMP_FORCE = 3;
@@ -12,12 +13,41 @@ const euler = new THREE.Euler(0, 0, 0, 'YXZ')
 
 const Player = () => {
     const body = useRef(null)
+    const spotLightRef = useRef(null)
     const [subscribeKeys, getKeys] = useKeyboardControls()
     const [lightTarget] = useState(() => new THREE.Object3D())
     const [torchOn, setTorchOn] = useState(false)
+    const [shakeIntensity, setShakeIntensity] = useState(0)
+    const [isFlickering, setIsFlickering] = useState(false)
+    const [showDoll, setShowDoll] = useState(false)
 
     useEffect(() => {
-        const unsubscribe = subscribeKeys(
+        const handleShake = (e) => {
+            setShakeIntensity(e.detail.intensity)
+            setTimeout(() => {
+                setShakeIntensity(0)
+            }, e.detail.duration)
+        }
+        window.addEventListener('shake', handleShake)
+
+        const handleFlicker = (e) => {
+            setIsFlickering(true)
+            setTimeout(() => {
+                setIsFlickering(false)
+            }, e.detail.duration)
+        }
+        window.addEventListener('flicker', handleFlicker)
+
+        const handleJumpscare = () => {
+            setShowDoll(true)
+            audioManager.play('spooky')
+            setTimeout(() => {
+                setShowDoll(false)
+            }, 600) // Much faster, flash-like jumpscare (600ms)
+        }
+        window.addEventListener('jumpscare', handleJumpscare)
+
+        const unsubscribeTorch = subscribeKeys(
             (state) => state.torch,
             (pressed) => {
                 if (pressed) {
@@ -25,7 +55,25 @@ const Player = () => {
                 }
             }
         )
-        return () => unsubscribe()
+
+        // Developer Tool: Press P to print current position
+        const unsubscribePrint = subscribeKeys(
+            (state) => state.print,
+            (pressed) => {
+                if (pressed && body.current) {
+                    const pos = body.current.translation()
+                    console.log(`COPIED TRIGGER POS: [${pos.x.toFixed(2)}, ${pos.y.toFixed(2)}, ${pos.z.toFixed(2)}]`)
+                }
+            }
+        )
+
+        return () => {
+            window.removeEventListener('shake', handleShake)
+            window.removeEventListener('flicker', handleFlicker)
+            window.removeEventListener('jumpscare', handleJumpscare)
+            unsubscribeTorch()
+            unsubscribePrint()
+        }
     }, [subscribeKeys])
 
     useFrame((state) => {
@@ -71,6 +119,25 @@ const Player = () => {
         } else {
             audioManager.pause('footsteps');
         }
+
+        // Screen Shake Logic (shakes camera, torch, and target together)
+        if (shakeIntensity > 0) {
+            state.camera.position.x = (Math.random() - 0.5) * shakeIntensity;
+            state.camera.position.y = 0.6 + (Math.random() - 0.5) * shakeIntensity;
+        } else {
+            state.camera.position.set(0, 0.6, 0);
+        }
+
+        // Flashlight Flicker Logic
+        if (spotLightRef.current) {
+            if (isFlickering) {
+                // 50% chance to be completely off, simulating a short circuit
+                spotLightRef.current.intensity = Math.random() > 0.5 ? 20 : 0;
+            } else {
+                // Return to normal player-controlled state
+                spotLightRef.current.intensity = torchOn ? 20 : 0;
+            }
+        }
     })
 
     return (
@@ -82,9 +149,18 @@ const Player = () => {
             <CapsuleCollider args={[0.5, 0.5]} />
             <PerspectiveCamera makeDefault position={[0, 0.6, 0]}>
                 <primitive object={lightTarget} position={[0, 0, -1]} />
+                
+                <group visible={showDoll}>
+                    <HorrorDoll 
+                        position={[0, -0.4, -0.8]} // Brought much closer to the camera and slightly down
+                        rotation={[0, 0, 0]} // Flipped 180 degrees to face the player
+                        scale={0.5} 
+                    />
+                </group>
 
                 {/* Put your Spotlight here! */}
                 <spotLight
+                    ref={spotLightRef}
                     target={lightTarget}
                     position={[0, 0, 0]}
                     angle={Math.PI / 8}

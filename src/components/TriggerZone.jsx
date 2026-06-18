@@ -1,13 +1,18 @@
 import { CuboidCollider, RigidBody } from '@react-three/rapier';
-import React, { useState } from 'react'
+import { PositionalAudio } from '@react-three/drei';
+import { useState, useRef } from 'react'
 
-const TriggerZone = ({ position, args = [1, 1, 1], onTrigger }) => {
-    const [hasTriggered, setHasTriggered] = useState();
+const TriggerZone = ({ position, args = [1, 1, 1], onTrigger, audioUrl, audioPosition = [0, 0, 0], audioDistance = 10 }) => {
+    const [hasTriggered, setHasTriggered] = useState(false);
+    const audioRef = useRef();
 
     function handleIntersection() {
-        if (hasTriggered != true) {
+        if (!hasTriggered) {
             setHasTriggered(true)
-            onTrigger()
+            if (onTrigger) onTrigger()
+            if (audioRef.current) {
+                audioRef.current.play()
+            }
         }
     }
 
@@ -17,6 +22,15 @@ const TriggerZone = ({ position, args = [1, 1, 1], onTrigger }) => {
                 sensor={true}
                 onIntersectionEnter={handleIntersection}
             />
+            {audioUrl && (
+                <PositionalAudio 
+                    ref={audioRef} 
+                    url={audioUrl} 
+                    position={audioPosition} // NEW: Offset the sound from the trigger!
+                    distance={audioDistance} // How loud/far it reaches
+                    loop={false}
+                />
+            )}
         </RigidBody>
     )
 }
