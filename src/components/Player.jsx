@@ -76,10 +76,11 @@ const Player = () => {
                 <spotLight
                     target={lightTarget}
                     position={[0, 0, 0]}
-                    angle={Math.PI / 9}
+                    angle={Math.PI / 8}
                     penumbra={1}
                     intensity={torchOn ? 20 : 0}
-                    distance={100}
+                    distance={50}
+                    color="#eaf868"
                     castShadow
                 />
             </PerspectiveCamera>
