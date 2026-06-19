@@ -5,6 +5,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import * as THREE from 'three'
 import { audioManager } from '../utils/AudioManager'
 import HorrorDoll from './HorrorDoll'
+import { useScareEffects } from '../hooks/useScareEffects'
 
 const SPEED = 3;
 const JUMP_FORCE = 3;
@@ -17,36 +18,9 @@ const Player = () => {
     const [subscribeKeys, getKeys] = useKeyboardControls()
     const [lightTarget] = useState(() => new THREE.Object3D())
     const [torchOn, setTorchOn] = useState(false)
-    const [shakeIntensity, setShakeIntensity] = useState(0)
-    const [isFlickering, setIsFlickering] = useState(false)
-    const [showDoll, setShowDoll] = useState(false)
+    const { shakeIntensity, isFlickering, showDoll } = useScareEffects()
 
     useEffect(() => {
-        const handleShake = (e) => {
-            setShakeIntensity(e.detail.intensity)
-            setTimeout(() => {
-                setShakeIntensity(0)
-            }, e.detail.duration)
-        }
-        window.addEventListener('shake', handleShake)
-
-        const handleFlicker = (e) => {
-            setIsFlickering(true)
-            setTimeout(() => {
-                setIsFlickering(false)
-            }, e.detail.duration)
-        }
-        window.addEventListener('flicker', handleFlicker)
-
-        const handleJumpscare = () => {
-            setShowDoll(true)
-            audioManager.play('spooky')
-            setTimeout(() => {
-                setShowDoll(false)
-            }, 600) // Much faster, flash-like jumpscare (600ms)
-        }
-        window.addEventListener('jumpscare', handleJumpscare)
-
         const unsubscribeTorch = subscribeKeys(
             (state) => state.torch,
             (pressed) => {
@@ -68,9 +42,6 @@ const Player = () => {
         )
 
         return () => {
-            window.removeEventListener('shake', handleShake)
-            window.removeEventListener('flicker', handleFlicker)
-            window.removeEventListener('jumpscare', handleJumpscare)
             unsubscribeTorch()
             unsubscribePrint()
         }
