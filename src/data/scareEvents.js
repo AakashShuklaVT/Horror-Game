@@ -17,15 +17,6 @@ export const SCARE_EVENTS = [
         }
     },
     {
-        audioUrl: '/audios/wolves-howl.webm',
-        onTrigger: () => {
-            console.log("Triggered wolves howl!");
-            window.dispatchEvent(new CustomEvent('shake', {
-                detail: { intensity: 0.05, duration: 2000 }
-            }));
-        }
-    },
-    {
         audioUrl: '/audios/running-footsteps.webm',
         audioPosition: [0, 8, 0],
         audioDistance: 40,

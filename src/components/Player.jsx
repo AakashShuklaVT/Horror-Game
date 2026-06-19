@@ -87,7 +87,7 @@ const Player = () => {
 
         if (isMoving && isGrounded) {
             audioManager.play('footsteps');
-        } else {
+        } else { 
             audioManager.pause('footsteps');
         }
 
