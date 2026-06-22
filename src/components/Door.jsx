@@ -2,6 +2,7 @@ import { useFrame } from '@react-three/fiber'
 import { RigidBody } from '@react-three/rapier'
 import { useRef, useState } from 'react'
 import * as THREE from 'three'
+import { audioManager } from '../utils/AudioManager'
 
 const Door = ({ position, rotation, children }) => {
     const doorRef = useRef(null)
@@ -36,6 +37,7 @@ const Door = ({ position, rotation, children }) => {
                 isInteractable: true,
                 onInteract: () => {
                     setIsOpen((prev) => !prev)
+                    audioManager.play('door', true)
                 }
             }}>
                 {children}

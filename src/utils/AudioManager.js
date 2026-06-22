@@ -7,7 +7,7 @@ class AudioManager {
         const audio = new Audio(path);
         audio.loop = options.loop || false;
         audio.volume = options.volume || 1.0;
-        
+
         // Fix for Chromium .webm looping bug
         if (options.loop) {
             audio.addEventListener('ended', () => {
@@ -15,14 +15,19 @@ class AudioManager {
                 audio.play().catch(e => console.warn(e));
             });
         }
-        
+
         this.sounds[name] = audio;
     }
 
-    play(name) {
+    play(name, forceRestart = false) {
         const audio = this.sounds[name];
-        if (audio && audio.paused) {
-            audio.play().catch(e => console.warn(`Could not play ${name}:`, e));
+        if (audio) {
+            if (forceRestart) {
+                audio.currentTime = 0; 
+                audio.play().catch(e => console.warn(`Could not play ${name}:`, e));
+            } else if (audio.paused) {
+                audio.play().catch(e => console.warn(`Could not play ${name}:`, e));
+            }
         }
     }
 

@@ -61,7 +61,6 @@ const Player = () => {
 
                             hit.object.traverseAncestors((parent) => {
                                 if (!foundInteractable && parent.userData && parent.userData.isInteractable) {
-                                    console.log("SUCCESS! Laser passed through your internal objects and hit the door!")
                                     parent.userData.onInteract()
                                     foundInteractable = true
                                 }
