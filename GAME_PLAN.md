@@ -52,9 +52,13 @@ This game has evolved from a simple maze into a tense, first-person horror escap
 - [ ] Set up the flashlight (SpotLight attached to the camera) and dark ambient lighting.
 
 ### Phase 2: The House & Interaction
-- [ ] Build a static house layout (walls, doors, floors).
-- [ ] Implement the Interaction System (Raycaster from camera center to pick up items, open doors).
+- [x] Build a static house layout (walls, doors, floors).
+- [x] Implement the Interaction System (Raycaster from camera center to pick up items, open doors).
 - [ ] Implement the basic Inventory System with Zustand.
+  - [ ] Install `zustand`.
+  - [ ] Create `useGameStore.js` to manage player inventory (e.g., keys, batteries).
+  - [ ] Create an interactable 3D Item component (e.g., a Key) that gets picked up via Raycaster.
+  - [ ] Lock specific doors so they only open if the player's Zustand inventory contains the required key.
 
 ### Phase 3: The Threat (Enemy AI)
 - [ ] Create a simple enemy model (a capsule or basic mesh to start).
