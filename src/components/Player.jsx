@@ -1,7 +1,7 @@
 import { PerspectiveCamera, useKeyboardControls } from '@react-three/drei'
 import { useFrame } from '@react-three/fiber'
 import { CapsuleCollider, RigidBody } from '@react-three/rapier'
-import React, { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import * as THREE from 'three'
 import { audioManager } from '../utils/AudioManager'
 import HorrorDoll from './HorrorDoll'

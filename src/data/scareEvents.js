@@ -17,7 +17,7 @@ export const SCARE_EVENTS = [
         }
     },
     {
-        audioUrl: '/audios/running-footsteps.webm',
+        audioUrl: null,
         audioPosition: [0, 8, 0],
         audioDistance: 40,
         onTrigger: () => {
