@@ -1,5 +1,5 @@
 import { PerspectiveCamera, useKeyboardControls } from '@react-three/drei'
-import { useFrame } from '@react-three/fiber'
+import { useFrame, useThree } from '@react-three/fiber'
 import { CapsuleCollider, RigidBody } from '@react-three/rapier'
 import { useEffect, useRef, useState } from 'react'
 import * as THREE from 'three'
@@ -13,6 +13,7 @@ const direction = new THREE.Vector3()
 const euler = new THREE.Euler(0, 0, 0, 'YXZ')
 
 const Player = () => {
+    const { get } = useThree()
     const body = useRef(null)
     const spotLightRef = useRef(null)
     const [subscribeKeys, getKeys] = useKeyboardControls()
@@ -41,13 +42,46 @@ const Player = () => {
             }
         )
 
+        const unsubscribeInteract = subscribeKeys(
+            (state) => state.interact,
+            (pressed) => {
+                if (pressed) {
+                    const { camera, scene } = get()
+                    const raycaster = new THREE.Raycaster()
+                    raycaster.setFromCamera(new THREE.Vector2(0, 0), camera)
+
+                    const intersects = raycaster.intersectObjects(scene.children, true)
+
+                    if (intersects.length > 0) {
+                        let foundInteractable = false
+
+                        for (let i = 0; i < intersects.length; i++) {
+                            const hit = intersects[i]
+                            if (hit.distance > 3) break
+
+                            hit.object.traverseAncestors((parent) => {
+                                if (!foundInteractable && parent.userData && parent.userData.isInteractable) {
+                                    console.log("SUCCESS! Laser passed through your internal objects and hit the door!")
+                                    parent.userData.onInteract()
+                                    foundInteractable = true
+                                }
+                            })
+
+                            if (foundInteractable) break
+                        }
+                    }
+                }
+            }
+        )
+
         return () => {
             unsubscribeTorch()
             unsubscribePrint()
+            unsubscribeInteract()
         }
     }, [subscribeKeys])
 
-    useFrame((state) => {
+    useFrame((state, delta) => {
         if (!body.current) return
 
         const keys = getKeys()
@@ -87,7 +121,7 @@ const Player = () => {
 
         if (isMoving && isGrounded) {
             audioManager.play('footsteps');
-        } else { 
+        } else {
             audioManager.pause('footsteps');
         }
 
@@ -119,13 +153,19 @@ const Player = () => {
         >
             <CapsuleCollider args={[0.5, 0.5]} />
             <PerspectiveCamera makeDefault position={[0, 0.6, 0]}>
+                {/* RED DOT CROSSHAIR! */}
+                <mesh position={[0, 0, -1]}>
+                    <sphereGeometry args={[0.005, 16, 16]} />
+                    <meshBasicMaterial color="white" depthTest={false} />
+                </mesh>
+
                 <primitive object={lightTarget} position={[0, 0, -1]} />
-                
+
                 <group visible={showDoll}>
-                    <HorrorDoll 
+                    <HorrorDoll
                         position={[0, -0.4, -0.8]} // Brought much closer to the camera and slightly down
                         rotation={[0, 0, 0]} // Flipped 180 degrees to face the player
-                        scale={0.5} 
+                        scale={0.5}
                     />
                 </group>
 

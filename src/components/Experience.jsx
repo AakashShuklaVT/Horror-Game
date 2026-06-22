@@ -34,7 +34,7 @@ export default function Experience() {
 
     return (
         <Canvas>
-            <Physics >
+            <Physics>
                 <PointerLockControls makeDefault />
                 <Lights />
                 <Player />

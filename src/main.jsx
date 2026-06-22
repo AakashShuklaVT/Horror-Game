@@ -12,6 +12,7 @@ const CONTROLS = {
     jump: 'jump',
     torch: 'torch',
     print: 'print',
+    interact: 'interact',
 }
 
 const keyMappings = [
@@ -22,6 +23,7 @@ const keyMappings = [
     { name: CONTROLS.jump, keys: ['Space'] },
     { name: CONTROLS.torch, keys: ['KeyT'] },
     { name: CONTROLS.print, keys: ['KeyP'] },
+    { name: CONTROLS.interact, keys: ['KeyE'] },
 ]
 
 createRoot(document.getElementById('root')).render(
